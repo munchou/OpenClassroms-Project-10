@@ -1,5 +1,5 @@
-from django.shortcuts import render
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
 
 from .serializers import (
     ProjectSerializer,
@@ -11,9 +11,10 @@ from .serializers import (
 from .models import Project, Contributor, Issue, Comment
 
 
-class ProjectViewSet(ModelViewSet):
+class ProjectViewSet(ReadOnlyModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class ContributorViewSet(ModelViewSet):

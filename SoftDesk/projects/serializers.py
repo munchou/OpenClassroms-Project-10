@@ -1,21 +1,24 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework import serializers
 
 from .models import Project, Contributor, Issue, Comment
 
 
-class ProjectSerializer(ModelSerializer):
+class ProjectSerializer(serializers.ModelSerializer):
+    # To display the author's name instead of their ID
+    author = serializers.StringRelatedField()
+
     class Meta:
         model = Project
         fields = ["title", "description", "type", "author"]
 
 
-class ContributorSerializer(ModelSerializer):
+class ContributorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contributor
         fields = ["user", "project_id", "role"]
 
 
-class IssueSerializer(ModelSerializer):
+class IssueSerializer(serializers.ModelSerializer):
     class Meta:
         model = Issue
         fields = [
@@ -30,7 +33,7 @@ class IssueSerializer(ModelSerializer):
         ]
 
 
-class CommentSerializer(ModelSerializer):
+class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ["description", "author", "created_time"]
