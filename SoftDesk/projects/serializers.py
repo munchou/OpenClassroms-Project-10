@@ -1,11 +1,26 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
 from .models import Project, Contributor, Issue, Comment
 
 
-class ProjectSerializer(serializers.ModelSerializer):
+class ProjectSerializerGet(serializers.ModelSerializer):
     # To display the author's name instead of their ID
-    author = serializers.StringRelatedField()
+    author = serializers.StringRelatedField(read_only=True)
+
+    title = serializers.CharField(
+        required=True, validators=[UniqueValidator(queryset=Project.objects.all())]
+    )
+
+    class Meta:
+        model = Project
+        fields = ["id", "title", "description", "type", "author"]
+
+
+class ProjectSerializer(serializers.ModelSerializer):
+    title = serializers.CharField(
+        required=True, validators=[UniqueValidator(queryset=Project.objects.all())]
+    )
 
     class Meta:
         model = Project

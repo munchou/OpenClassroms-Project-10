@@ -19,3 +19,17 @@ urlpatterns = [
     path("signup/", NewUserView.as_view(), name="signup"),
     path("", include(router.urls)),
 ]
+
+"""
+URLS to set
+/signup/
+/login/
+/projects/ (GET list all projects / POST create a project)
+/projects/{id}/ (GET details of a project via its id / PUT to update a project / DELETE)
+/projects/{id}/users/ (POST to link existing users to the project = contributor / GET the list of the contributors linked to that project)
+/projects/{id}/users/{id} (REMOVE a contributor from a project)
+/projects/{id}/issues/ (GET the list of the issues related to the project / POST create an issue related to the project)
+/projects/{id}/issues/{id}/ (PUT update the issue / DELETE the issue)
+/projects/{id}/issues/{id}/comments/ (POST create comments about an issue / GET list of the comments related to the issue)
+/projects/{id}/issues/{id}/comments/{id}/ (PUT update the comment / DELETE delete the comment / GET show the comment)
+"""
