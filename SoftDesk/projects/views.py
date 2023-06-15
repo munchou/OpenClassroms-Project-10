@@ -14,6 +14,7 @@ from .serializers import (
     ContributorSerializer,
     ContributorSerializerGet,
     IssueSerializer,
+    IssueSerializerGet,
     CommentSerializer,
 )
 from .permissions import IsAuthor, IsContributor
@@ -133,3 +134,65 @@ class ContributorViewSet(ModelViewSet):
         return Response(
             f"{contributor.user} is no longer a contributor of the project."
         )
+
+
+class IssueViewSet(ModelViewSet):
+    queryset = Issue.objects.all()
+    serializer_class = IssueSerializer()
+    permission_classes = (IsAuthenticated,)
+
+    def list(self, request, pk=None):
+        project = Project.objects.get(pk=pk)
+        issues = Issue.objects.filter(project=project)
+        serializer = IssueSerializerGet(issues, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def create(self, request, pk=None):
+        project = Project.objects.get(pk=pk)
+        copied_data = request.data.copy()
+        copied_data["project"] = project.id
+        copied_data["author"] = request.user.id
+
+        # print(f"\nPROJECT ID {project.id}\n")
+        # contributors = Contributor.objects.all()
+        # print(f"\nUSERTEST {contributors}\n")
+        # test = Contributor.objects.get(id=8)
+        # print(f"\nCONTRIBUTOR TEST {test.user}\n")
+        # user = get_object_or_404(User, id=copied_data["assignee"])
+        # print(f"\nUSER {user}\n")
+
+        try:
+            Contributor.objects.get(id=copied_data["assignee"], project=project.id)
+            serializer = IssueSerializer(data=copied_data)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Contributor.DoesNotExist:
+            return Response(
+                f"User_id:{copied_data['assignee']} is either not a contributor or does not exist.",
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    # def update(self, request, pk=None):
+    #     project = Project.objects.get(pk=pk)
+    #     copied_data = request.data.copy()
+    #     copied_data["author"] = project.author.id
+    #     serializer = ProjectSerializer(project, data=copied_data)
+    #     if serializer.is_valid(raise_exception=True):
+    #         project = serializer.save()
+    #         return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # def destroy(self, request, pk=None):
+    #     pass
+    # project = Project.objects.get(pk=pk)
+    # project.delete()
+    # return Response(
+    #     f"Project (ID: {pk}) deleted.", status=status.HTTP_204_NO_CONTENT
+    # )
+
+
+class CommentViewSet(ModelViewSet):
+    serializer_class = CommentSerializer()
+    permission_classes = (IsAuthenticated,)

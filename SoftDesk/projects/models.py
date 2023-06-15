@@ -22,7 +22,7 @@ class Project(models.Model):
     )
 
     def __str__(self):
-        return f"{self.title} by {self.author} [{self.type}]"
+        return f"{self.title} by {self.author} [{self.type}] | ID: {self.id}"
 
 
 class Contributor(models.Model):
@@ -37,7 +37,7 @@ class Contributor(models.Model):
     role = models.CharField(max_length=11, choices=ROLE)
 
     def __str__(self):
-        return f"{self.user} on project {self.project} as {self.role}"
+        return f"{self.user} (ID: {self.user.id}) | {self.project} | {self.role}"
 
 
 class Issue(models.Model):
@@ -53,6 +53,7 @@ class Issue(models.Model):
     desc = models.CharField(max_length=100)
     tag = models.CharField(max_length=11, choices=TAG)
     priority = models.CharField(max_length=8, choices=PRIORITY)
+    project = models.ForeignKey(to=Project, on_delete=models.CASCADE, null=True)
     status = models.CharField(max_length=11, choices=STATUS)
     author = models.ForeignKey(
         to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True
@@ -61,7 +62,7 @@ class Issue(models.Model):
     created_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.title} by {self.author}, priority {self.priority}"
+        return f"[{self.priority} priority] {self.title} by {self.author}, [{self.tag}]"
 
 
 class Comment(models.Model):

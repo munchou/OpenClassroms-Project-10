@@ -39,17 +39,40 @@ class ContributorSerializerGet(serializers.ModelSerializer):
 class ContributorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contributor
-        fields = ["user", "project", "role"]
+        fields = ["id", "user", "project", "role"]
+
+
+class IssueSerializerGet(serializers.ModelSerializer):
+    author = serializers.StringRelatedField(read_only=True)
+    assignee = serializers.StringRelatedField(read_only=True)
+    project = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = Issue
+        fields = [
+            "id",
+            "title",
+            "desc",
+            "tag",
+            "priority",
+            "project",
+            "status",
+            "author",
+            "assignee",
+            "created_time",
+        ]
 
 
 class IssueSerializer(serializers.ModelSerializer):
     class Meta:
         model = Issue
         fields = [
+            "id",
             "title",
             "desc",
             "tag",
             "priority",
+            "project",
             "status",
             "author",
             "assignee",

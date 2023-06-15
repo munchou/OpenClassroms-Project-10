@@ -2,7 +2,12 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from projects.views import ProjectViewSet, ContributorViewSet
+from projects.views import (
+    ProjectViewSet,
+    ContributorViewSet,
+    IssueViewSet,
+    CommentViewSet,
+)
 from users.views import MyObtainTokenPairView, NewUserView
 
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
@@ -30,11 +35,16 @@ urlpatterns = [
         ContributorViewSet.as_view({"delete": "destroy"}),
         name="contributors_delete",
     ),
+    path(
+        "projects/<int:pk>/issues/",
+        IssueViewSet.as_view({"get": "list", "post": "create"}),
+        name="issues",
+    ),
     path("", include(router.urls)),
 ]
 
 """
-URLS to set
+URLs to set
 /signup/
 /login/
 /projects/ (GET list all projects / POST create a project)
