@@ -1,9 +1,27 @@
 from django.contrib import admin
+from django.contrib.auth.models import User
+from django.contrib.auth.admin import UserAdmin
 
 from projects.models import Project, Contributor, Issue, Comment
 
 
 admin.site.site_header = "SoftDesk Admin Panel"
+
+
+UserAdmin.list_display = (
+    "username",
+    "id",
+    "email",
+    "first_name",
+    "last_name",
+    "is_active",
+    # "date_joined",
+    "is_staff",
+)
+
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)
+
 
 # class ProjectAdmin(admin.ModelAdmin):
 #     list_display = ["title", "description", "type"]

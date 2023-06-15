@@ -27,10 +27,19 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = ["title", "description", "type", "author"]
 
 
+class ContributorSerializerGet(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(read_only=True)
+    project = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = Contributor
+        fields = ["user", "project", "role"]
+
+
 class ContributorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contributor
-        fields = ["user", "project_id", "role"]
+        fields = ["user", "project", "role"]
 
 
 class IssueSerializer(serializers.ModelSerializer):

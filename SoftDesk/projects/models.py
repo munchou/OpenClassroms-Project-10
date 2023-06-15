@@ -31,13 +31,13 @@ class Contributor(models.Model):
     user = models.ForeignKey(
         to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True
     )
-    project_id = models.ForeignKey(
+    project = models.ForeignKey(
         to=Project, on_delete=models.CASCADE, related_name="contributors"
     )
     role = models.CharField(max_length=11, choices=ROLE)
 
     def __str__(self):
-        return f"{self.user} on project {self.project_id} as {self.role}"
+        return f"{self.user} on project {self.project} as {self.role}"
 
 
 class Issue(models.Model):
