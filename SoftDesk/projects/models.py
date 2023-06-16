@@ -58,11 +58,13 @@ class Issue(models.Model):
     author = models.ForeignKey(
         to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True
     )
-    assignee = models.ForeignKey(to=Contributor, on_delete=models.CASCADE, default=None)
+    assignee = models.ForeignKey(
+        to=Contributor, on_delete=models.CASCADE, related_name="assignee"
+    )
     created_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"[{self.priority} priority] {self.title} by {self.author}, [{self.tag}]"
+        return f"[{self.tag} ({self.status})] [Priority: {self.priority}] [Project ID: {self.project.id}] [Issue: {self.title}] [by: {self.author}] [Assignee: {self.assignee.user}]"
 
 
 class Comment(models.Model):
@@ -70,8 +72,10 @@ class Comment(models.Model):
     author = models.ForeignKey(
         to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True
     )
-    issue_id = models.ForeignKey(to=Issue, on_delete=models.CASCADE, default=None)
+    issue_id = models.ForeignKey(
+        to=Issue, on_delete=models.CASCADE, related_name="issue_id"
+    )
     created_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Comment by {self.author}, issue id {self.issue_id}"
+        return f"[Comment ID: {self.id}] [by: {self.author}] [Project: {self.issue_id.project}]"

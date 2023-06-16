@@ -80,7 +80,15 @@ class IssueSerializer(serializers.ModelSerializer):
         ]
 
 
+class CommentSerializerGet(serializers.ModelSerializer):
+    author = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ["id", "description", "author", "issue_id", "created_time"]
+
+
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ["description", "author", "created_time"]
+        fields = ["id", "description", "author", "issue_id", "created_time"]

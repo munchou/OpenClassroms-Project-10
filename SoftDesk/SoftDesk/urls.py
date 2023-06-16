@@ -40,6 +40,23 @@ urlpatterns = [
         IssueViewSet.as_view({"get": "list", "post": "create"}),
         name="issues",
     ),
+    path(
+        "projects/<int:pk>/issues/<int:issue_pk>/",
+        IssueViewSet.as_view({"put": "update", "delete": "destroy"}),
+        name="issues_edit",
+    ),
+    path(
+        "projects/<int:pk>/issues/<int:issue_pk>/comments/",
+        CommentViewSet.as_view({"get": "list", "post": "create"}),
+        name="comments",
+    ),
+    path(
+        "projects/<int:pk>/issues/<int:issue_pk>/comments/<int:comment_pk>/",
+        CommentViewSet.as_view(
+            {"get": "retrieve", "put": "update", "delete": "destroy"}
+        ),
+        name="comments_edit",
+    ),
     path("", include(router.urls)),
 ]
 
