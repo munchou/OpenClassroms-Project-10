@@ -91,7 +91,10 @@ class ProjectViewSet(ModelViewSet):
         types = ["back-end", "front-end", "ios", "android"]
         copied_data["type"] = copied_data["type"].casefold()
         if copied_data["type"] not in types:
-            return Response("Available types : back-end, front-end, ios, android")
+            return Response(
+                "Available types : back-end, front-end, ios, android",
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         serializer = ProjectSerializer(project, data=copied_data)
         if serializer.is_valid(raise_exception=True):
@@ -159,7 +162,9 @@ class ContributorViewSet(ModelViewSet):
                 print(f"ERRORS {serializer.errors}")
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             except User.DoesNotExist:
-                return Response(f"That user does not exist.")
+                return Response(
+                    f"That user does not exist.", status=status.HTTP_400_BAD_REQUEST
+                )
 
     def destroy(self, request, pk, contributor_pk):
         contributor = get_object_or_404(Contributor, user=contributor_pk, project=pk)
