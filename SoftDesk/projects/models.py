@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import User
 from django.conf import settings
 
 
@@ -64,7 +63,7 @@ class Issue(models.Model):
     created_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"[{self.tag} ({self.status})] [Priority: {self.priority}] [Project ID: {self.project.id}] [Issue: {self.title}] [by: {self.author}] [Assignee: {self.assignee.user}]"
+        return f"[ID: {self.id}] [{self.tag} ({self.status})] [Priority: {self.priority}] [Project ID: {self.project.id}] [Issue: {self.title}] [by: {self.author}] [Assignee: {self.assignee.user}]"
 
 
 class Comment(models.Model):
@@ -78,4 +77,4 @@ class Comment(models.Model):
     created_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"[Comment ID: {self.id}] [by: {self.author}] [Project: {self.issue_id.project}]"
+        return f"[Comment ID: {self.id}] [by: {self.author}] [Project: {self.issue_id.project}] [Issue ID: {self.issue_id}]"
