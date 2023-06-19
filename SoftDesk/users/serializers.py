@@ -6,15 +6,16 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
 
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super(MyTokenObtainPairSerializer, cls).get_token(user)
-        # Add custon claims
-        token["username"] = user.username
-        return token
+# class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+#     @classmethod
+#     def get_token(cls, user):
+#         token = super(MyTokenObtainPairSerializer, cls).get_token(user)
+#         # Add custon claims
+#         token["username"] = user.username
+#         return token
 
 
 class NewUserSerializer(serializers.ModelSerializer):
@@ -62,3 +63,20 @@ class NewUserSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
+
+
+# class LogoutSerializer(serializers.ModelSerializer):
+#     refresh = serializers.CharField()
+
+#     default_error_message = {"bad_token": ("Token is expired or invalid")}
+
+#     def validate(self, attrs):
+#         self.token = attrs["refresh"]
+#         return attrs
+
+#     def save(self, **kwargs):
+#         try:
+#             RefreshToken(self.token).blacklist()
+
+#         except TokenError:
+#             self.fail("bad_token")
