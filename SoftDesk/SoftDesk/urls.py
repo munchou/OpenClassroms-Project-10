@@ -9,7 +9,7 @@ from projects.views import (
     IssueViewSet,
     CommentViewSet,
 )
-from users.views import NewUserView
+from users.views import NewUserView, ChangePasswordView
 
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
@@ -24,10 +24,15 @@ router.register(r"projects", ProjectViewSet, basename="Project")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("signup/", NewUserView.as_view(), name="signup"),
     # path("login/", MyObtainTokenPairView.as_view(), name="login"),
     path("login/", TokenObtainPairView.as_view(), name="login"),
     path("login/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("signup/", NewUserView.as_view(), name="signup"),
+    path(
+        "change_password/<int:pk>/",
+        ChangePasswordView.as_view(),
+        name="change_password",
+    ),
     # path("logout/", LogoutView.as_view(), name="logout"),
     path(
         "projects/<int:pk>/users/",

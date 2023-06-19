@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.db.models import Q
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -32,23 +33,31 @@ class ProjectViewSet(ModelViewSet):
     def get_permissions(self):
         """Instantiates and returns the list of
         permissions that this view requires."""
-        if (
-            self.action == "list"
-            or self.action == "create"
-            or self.action == "retrieve"
-        ):
+        if self.action == "create" or self.action == "list":
             permission_classes = [IsAuthenticated]
+        elif self.action == "retrieve":
+            permission_classes = [ProjectAuthorOrContributor]
         else:
             permission_classes = [ProjectAuthor]
         return [permission() for permission in permission_classes]
 
     def list(self, request):
-        projects = Project.objects.all()
+        # projects = Project.objects.all()
         project = self.request.GET.get("project")
-        if project is not None:
-            projects = projects.filter(project=project)
-        serializer = ProjectSerializerGet(projects, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        projects = Project.objects.filter(
+            Q(contributors__user=request.user) | Q(author=request.user)
+        )
+        print(f"\n PROJECTS CONTRIBUTORS: ({len(projects)}) {projects}")
+
+        try:
+            if project is not None:
+                projects = projects.filter(project=project)
+            serializer = ProjectSerializerGet(projects, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Project.DoesNotExist:
+            return Response(
+                "You are not linked to any project.", status=status.HTTP_204_NO_CONTENT
+            )
 
     def create(self, request):
         copied_data = request.data.copy()
@@ -211,8 +220,27 @@ class IssueViewSet(ModelViewSet):
         if copied_data["status"] not in status_list:
             return Response("Available priorities : to_do, in_progress, completed")
 
-        if copied_data["assignee"] == "":
+        # ----------- Checking the "user" input
+        project_contributors = Contributor.objects.filter(project=pk)
+        contrib_users_list = []
+        for contrib in project_contributors:
+            contrib_users_list.append(contrib.user.username)
+
+        user_input = copied_data["assignee"]
+        if user_input.isdigit():
+            pass
+        elif user_input in contrib_users_list:
+            picked_user = User.objects.get(username=user_input)
+            copied_data["assignee"] = picked_user.id
+        else:
+            print(
+                f"Blank input or user [{user_input}] does not exist, authenticated user [{request.user}] selected as assignee."
+            )
             copied_data["assignee"] = request.user.id
+        # ---------------------------------------------
+
+        # if copied_data["assignee"] == "":
+        #     copied_data["assignee"] = request.user.id
 
         try:
             contributor = get_object_or_404(
@@ -263,6 +291,7 @@ class IssueViewSet(ModelViewSet):
         contrib_users_list = []
         for contrib in project_contributors:
             contrib_users_list.append(contrib.user.username)
+        print(f"\n contrib_users_list: {request.user}\n")
 
         user_input = copied_data["assignee"]
         if user_input.isdigit():

@@ -1,10 +1,12 @@
 # from https://medium.com/django-rest/django-rest-framework-login-and-register-user-fd91cf6029d5
 
 from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
 
 from rest_framework import serializers
+from rest_framework.response import Response
 from rest_framework.validators import UniqueValidator
-from django.contrib.auth.password_validation import validate_password
+
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
@@ -65,18 +67,34 @@ class NewUserSerializer(serializers.ModelSerializer):
         return user
 
 
-# class LogoutSerializer(serializers.ModelSerializer):
-#     refresh = serializers.CharField()
+class ChangePasswordSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(
+        write_only=True, required=True, validators=[validate_password]
+    )
+    password2 = serializers.CharField(write_only=True, required=True)
+    old_password = serializers.CharField(write_only=True, required=True)
 
-#     default_error_message = {"bad_token": ("Token is expired or invalid")}
+    class Meta:
+        model = User
+        fields = ("old_password", "password", "password2")
 
-#     def validate(self, attrs):
-#         self.token = attrs["refresh"]
-#         return attrs
+    def validate(self, attrs):
+        if attrs["password"] != attrs["password2"]:
+            raise serializers.ValidationError(
+                {"password": "Password fields didn't match."}
+            )
 
-#     def save(self, **kwargs):
-#         try:
-#             RefreshToken(self.token).blacklist()
+        return attrs
 
-#         except TokenError:
-#             self.fail("bad_token")
+    def validate_old_password(self, value):
+        user = self.context["request"].user
+        if not user.check_password(value):
+            raise serializers.ValidationError(
+                {"old_password": "Old password is not correct"}
+            )
+        return value
+
+    def update(self, instance, validated_data):
+        instance.set_password(validated_data["password"])
+        instance.save()
+        return instance

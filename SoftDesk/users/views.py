@@ -5,10 +5,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-# from django.utils.decorators import method_decorator
-# from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
-from .serializers import NewUserSerializer
+from .serializers import NewUserSerializer, ChangePasswordSerializer
+from projects.permissions import IsUser
 
 # from .serializers import MyTokenObtainPairSerializer
 
@@ -24,19 +23,13 @@ class NewUserView(generics.CreateAPIView):
     serializer_class = NewUserSerializer
 
 
-# @method_decorator(csrf_exempt)
+class ChangePasswordView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    permission_classes = (IsUser,)
+    serializer_class = ChangePasswordSerializer
+
+
 class LogoutView(APIView):
-    # serializer_class = LogoutSerializer
-
-    # permission_classes = (IsAuthenticated,)
-
-    # def post(self, request):
-    #     serializer = self.serializer_class(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     serializer.save()
-
-    #     return Response(status=status.HTTP_204_NO_CONTENT)
-
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
