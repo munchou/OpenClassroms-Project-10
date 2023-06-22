@@ -12,11 +12,6 @@ class ProjectAuthor(BasePermission):
         return bool(project.author == request.user)
 
 
-class ProjectList(BasePermission):
-    def has_permission(self, request, view):
-        user = get_object_or_404(User, id=request.user.id)
-
-
 class ProjectAuthorOrContributor(BasePermission):
     def has_permission(self, request, view):
         project = get_object_or_404(Project, id=view.kwargs["pk"])

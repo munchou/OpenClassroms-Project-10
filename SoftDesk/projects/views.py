@@ -56,7 +56,8 @@ class ProjectViewSet(ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Project.DoesNotExist:
             return Response(
-                "You are not linked to any project.", status=status.HTTP_204_NO_CONTENT
+                "You are not linked to any project.",
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
     def create(self, request):
@@ -75,7 +76,7 @@ class ProjectViewSet(ModelViewSet):
             Contributor.objects.create(
                 user=request.user, project=project, role="author"
             )
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, pk=None):
@@ -99,16 +100,14 @@ class ProjectViewSet(ModelViewSet):
         serializer = ProjectSerializer(project, data=copied_data)
         if serializer.is_valid(raise_exception=True):
             project = serializer.save()
-            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, pk=None):
         project = get_object_or_404(Project, pk=pk)
         if request.user == project.author:
             project.delete()
-            return Response(
-                f"Project (ID: {pk}) deleted.", status=status.HTTP_204_NO_CONTENT
-            )
+            return Response(f"Project (ID: {pk}) deleted.", status=status.HTTP_200_OK)
         return Response(
             "Only the author of the project can delete it.",
             status=status.HTTP_400_BAD_REQUEST,
@@ -178,7 +177,7 @@ class ContributorViewSet(ModelViewSet):
         contributor.delete()
         return Response(
             f"{contributor.user} is no longer a contributor of the project.",
-            status=status.HTTP_202_ACCEPTED,
+            status=status.HTTP_200_OK,
         )
 
 
@@ -327,7 +326,7 @@ class IssueViewSet(ModelViewSet):
             serializer = IssueSerializer(issue, data=copied_data)
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Contributor.DoesNotExist:
             return Response(
@@ -340,9 +339,7 @@ class IssueViewSet(ModelViewSet):
         # issue = Issue.objects.get(id=issue_pk)
 
         issue.delete()
-        return Response(
-            "The issue was delete successfully.", status=status.HTTP_202_ACCEPTED
-        )
+        return Response("The issue was delete successfully.", status=status.HTTP_200_OK)
 
 
 class CommentViewSet(ModelViewSet):
@@ -390,7 +387,7 @@ class CommentViewSet(ModelViewSet):
         serializer = CommentSerializer(comment, data=copied_data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, pk, issue_pk, comment_pk):
@@ -403,5 +400,5 @@ class CommentViewSet(ModelViewSet):
 
         comment.delete()
         return Response(
-            "The comment was deleted successfully.", status=status.HTTP_202_ACCEPTED
+            "The comment was deleted successfully.", status=status.HTTP_200_OK
         )
