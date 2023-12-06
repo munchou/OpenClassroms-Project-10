@@ -4,6 +4,8 @@
 
 _Tested with Windows 10 and Python 3.10.2_
 
+# Preview
+![url](P10_Django_RESTful_API_720p.gif)
 
 # Hao2do (Windows)
 ### Retrieving a copy of the "depository"
